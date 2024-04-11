@@ -27,6 +27,8 @@ def attack():
             print("cannot connect to FTP server")
             connexion.close()
             return
+    connexion.close()
+    print("no password found")
 
 if __name__ == '__main__':
     attack()
