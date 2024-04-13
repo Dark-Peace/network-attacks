@@ -2,14 +2,15 @@ import scapy.all as scapy
 from scapy.layers.inet import IP, TCP
 
 
-
 def get_passwords():
     with open("passwords.txt", encoding="utf8") as file:
-	    return file.readlines()
+        return file.readlines()
+
 
 def command_result(connexion, command, expected):
     connexion.send(command)
     return expected in str(connexion.recv())
+
 
 def attack():
     for password in get_passwords():
@@ -29,6 +30,7 @@ def attack():
             return
     connexion.close()
     print("no password found")
+
 
 if __name__ == '__main__':
     attack()

@@ -21,7 +21,8 @@ class TopoSecu(Topo):
     def build(self):
 
         # Add 2 routers in two different subnets
-        r1 = self.addHost('r1', cls=LinuxRouter, ip=None)  # Workstation LAN router
+        # Workstation LAN router
+        r1 = self.addHost('r1', cls=LinuxRouter, ip=None)
         r2 = self.addHost('r2', cls=LinuxRouter, ip=None)  # Internet router
 
         # Add 2 switches
@@ -29,21 +30,32 @@ class TopoSecu(Topo):
         s2 = self.addSwitch('s2')
 
         # Add router-switch links in the same subnet
-        self.addLink(s1, r1, intfName2='r1-eth0', params2={'ip': '10.1.0.1/24'})
-        self.addLink(s2, r1, intfName2='r1-eth12', params2={'ip': '10.12.0.1/24'})
-        self.addLink(s2, r2, intfName2='r2-eth12', params2={'ip': '10.12.0.2/24'})
+        self.addLink(s1, r1, intfName2='r1-eth0',
+                     params2={'ip': '10.1.0.1/24'})
+        self.addLink(s2, r1, intfName2='r1-eth12',
+                     params2={'ip': '10.12.0.1/24'})
+        self.addLink(s2, r2, intfName2='r2-eth12',
+                     params2={'ip': '10.12.0.2/24'})
 
         # Add outside host
-        internet = self.addHost(name='internet', ip='10.2.0.2/24', defaultRoute='via 10.2.0.1')
-        self.addLink(internet, r2, intfName2='r2-eth0', params2={'ip': '10.2.0.1/24'})
+        internet = self.addHost(
+            name='internet', ip='10.2.0.2/24', defaultRoute='via 10.2.0.1')
+        self.addLink(internet, r2, intfName2='r2-eth0',
+                     params2={'ip': '10.2.0.1/24'})
 
         # Adding hosts specifying the default route
-        ws2 = self.addHost(name='ws2', ip='10.1.0.2/24', defaultRoute='via 10.1.0.1')
-        ws3 = self.addHost(name='ws3', ip='10.1.0.3/24', defaultRoute='via 10.1.0.1')
-        httpServer = self.addHost(name='http', ip='10.12.0.10/24', defaultRoute='via 10.12.0.2')
-        dnsServer = self.addHost(name='dns', ip='10.12.0.20/24', defaultRoute='via 10.12.0.2')
-        ntpServer = self.addHost(name='ntp', ip='10.12.0.30/24', defaultRoute='via 10.12.0.2')
-        ftpServer = self.addHost(name='ftp', ip='10.12.0.40/24', defaultRoute='via 10.12.0.2')
+        ws2 = self.addHost(name='ws2', ip='10.1.0.2/24',
+                           defaultRoute='via 10.1.0.1')
+        ws3 = self.addHost(name='ws3', ip='10.1.0.3/24',
+                           defaultRoute='via 10.1.0.1')
+        httpServer = self.addHost(
+            name='http', ip='10.12.0.10/24', defaultRoute='via 10.12.0.2')
+        dnsServer = self.addHost(
+            name='dns', ip='10.12.0.20/24', defaultRoute='via 10.12.0.2')
+        ntpServer = self.addHost(
+            name='ntp', ip='10.12.0.30/24', defaultRoute='via 10.12.0.2')
+        ftpServer = self.addHost(
+            name='ftp', ip='10.12.0.40/24', defaultRoute='via 10.12.0.2')
 
         # Add host-switch links
         self.addLink(ws2, s1)
@@ -55,7 +67,7 @@ class TopoSecu(Topo):
 
 
 topos = {
-    "secu": ( lambda: TopoSecu() )
+    "secu": (lambda: TopoSecu())
 }
 
 
@@ -84,6 +96,8 @@ def start_services(net: Mininet) -> None:
     for host in ['http', 'ntp', 'ftp']:
         info(net[host].cmd(cmd))
 
+    info(net['r1'].cmd(""))
+
 
 def stop_services(net: Mininet) -> None:
     """
@@ -99,6 +113,23 @@ def stop_services(net: Mininet) -> None:
     # FTP server
     info(net['ftp'].cmd("killall vsftpd"))
 
+    net['http'].cmd("nft add table inet filter")
+    net['http'].cmd
+    (
+        """
+        nft add chain inet filter input {
+            type filter hook input priority 0;
+        }
+        """
+    )
+    net['http'].cmd
+    (
+        """
+        nft add chain inet filter output {
+            type filter hook output priority 0;
+        }
+        """
+    )
 
 def run():
     topo = TopoSecu()
@@ -138,7 +169,8 @@ if __name__ == '__main__':
         description="Mininet topology for the network attacks project of the course LINFO2347."
     )
     # Optional flag -p
-    parser.add_argument("-p", "--pingall", action="store_true", help="Perform pingall test")
+    parser.add_argument("-p", "--pingall", action="store_true",
+                        help="Perform pingall test")
     # Parse arguments
     args = parser.parse_args()
 
