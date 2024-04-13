@@ -1,6 +1,4 @@
 """
-Custom topology for the LINFO2347 - Computer System Security course.
-
 Mimics a small enterprise network, with 2 workstations in a trusted LAN,
 and service-providing servers in a DMZ LAN.
 
@@ -98,6 +96,31 @@ def start_services(net: Mininet) -> None:
 
     info(net['r1'].cmd(""))
 
+    for host in ['http', 'ntp', 'ftp', 'dns']:
+        info(net[host].cmd("nft add table inet filter"))
+        info(net[host].cmd(
+            "nft add chain inet filter input '{type filter hook input priority 0; policy drop ;}'"))
+        info(net[host].cmd(
+            "nft add rule inet filter input tcp dport { 22, 80, 443} accept"))
+
+        info(net[host].cmd(
+            "nft add chain inet filter output '{ type filter hook output priority 0; policy drop ;}'"))
+        info(net[host].cmd(
+            "nft add rule inet filter output ct state {established, related} accept"))
+        info(net[host].cmd(
+            "nft add rule inet filter output tcp sport {22, 80, 443} accept"))
+        info(net[host].cmd(
+            "nft add rule inet filter output icmp type { echo-reply, destination-unreachable } accept"))
+
+    info(net['r1'].cmd("nft add table inet filter"))
+    info(net['r1'].cmd(
+        "nft add chain inet filter forward '{type filter hook forward priority 0;}'"))
+    info(net['r1'].cmd(
+        "nft add rule inet filter forward ct original ip saddr 10.1.0.2 accept"))
+    info(net['r1'].cmd(
+        "nft add rule inet filter forward ct original ip saddr 10.1.0.3 accept"))
+    info(net['r1'].cmd("nft add rule inet filter forward ct state new drop"))
+
 
 def stop_services(net: Mininet) -> None:
     """
@@ -113,23 +136,6 @@ def stop_services(net: Mininet) -> None:
     # FTP server
     info(net['ftp'].cmd("killall vsftpd"))
 
-    net['http'].cmd("nft add table inet filter")
-    net['http'].cmd
-    (
-        """
-        nft add chain inet filter input {
-            type filter hook input priority 0;
-        }
-        """
-    )
-    net['http'].cmd
-    (
-        """
-        nft add chain inet filter output {
-            type filter hook output priority 0;
-        }
-        """
-    )
 
 def run():
     topo = TopoSecu()

@@ -10,7 +10,7 @@ for i; do
 		echo $i "does not exists"
 	else
 		echo $i "sent to mininet"
-		sshpass -p "mininet" scp -P 2222 $i mininet@127.0.0.1:/home/mininet/
+		sshpass -p "mininet" scp -P 2222 $i mininet@127.0.0.1:/home/mininet/LINFO2347/
 	fi
 done
 
