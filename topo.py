@@ -96,21 +96,25 @@ def start_services(net: Mininet) -> None:
 
     info(net['r1'].cmd(""))
 
+    info(net['r2'].cmd("nft add rule inet filter forward ip saddr 10.2.0.2 ip accept"))
+
     for host in ['http', 'ntp', 'ftp', 'dns']:
         info(net[host].cmd("nft add table inet filter"))
         info(net[host].cmd(
-            "nft add chain inet filter input '{type filter hook input priority 0; policy drop ;}'"))
+            "nft add chain inet filter input '{type filter hook input priority 0; policy drop;}'"))
         info(net[host].cmd(
-            "nft add rule inet filter input tcp dport { 22, 80, 443} accept"))
+            "nft add rule inet filter input tcp dport {22, 80, 443} accept"))
+        info(net[host].cmd(
+            "nft add rule inet filter input icmp type echo-request accept"))
 
         info(net[host].cmd(
-            "nft add chain inet filter output '{ type filter hook output priority 0; policy drop ;}'"))
+            "nft add chain inet filter output '{type filter hook output priority 0; policy drop;}'"))
         info(net[host].cmd(
             "nft add rule inet filter output ct state {established, related} accept"))
         info(net[host].cmd(
             "nft add rule inet filter output tcp sport {22, 80, 443} accept"))
         info(net[host].cmd(
-            "nft add rule inet filter output icmp type { echo-reply, destination-unreachable } accept"))
+            "nft add rule inet filter output icmp type {echo-reply, destination-unreachable} accept"))
 
     info(net['r1'].cmd("nft add table inet filter"))
     info(net['r1'].cmd(
