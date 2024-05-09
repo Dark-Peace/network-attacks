@@ -63,6 +63,8 @@ class TopoSecu(Topo):
         self.addLink(ntpServer, s2)
         self.addLink(ftpServer, s2)
 
+topo = TopoSecu()
+net = Mininet(topo=topo)
 
 topos = {
     "secu": (lambda: TopoSecu())
