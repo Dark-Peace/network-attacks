@@ -10,7 +10,6 @@ from mininet.topo import Topo
 from mininet.examples.linuxrouter import LinuxRouter
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
-import argparse
 import time
 
 
@@ -63,13 +62,6 @@ class TopoSecu(Topo):
         self.addLink(ntpServer, s2)
         self.addLink(ftpServer, s2)
 
-topo = TopoSecu()
-net = Mininet(topo=topo)
-
-topos = {
-    "secu": (lambda: TopoSecu())
-}
-
 
 def add_routes(net):
     ### STATIC ROUTES ###
@@ -104,8 +96,9 @@ def start_services(net: Mininet) -> None:
         info(net[host].cmd("nft add table inet filter"))
         info(net[host].cmd(
             "nft add chain inet filter input '{type filter hook input priority 0; policy drop;}'"))
+        # the following rules makes it so that 22, 80, 443 are the only accepted port therefore protecting against netscan
         info(net[host].cmd(
-            "nft add rule inet filter input tcp dport {22, 80, 443} accept"))
+            "nft add rule inet filter input dport {22, 80, 443} accept"))
         info(net[host].cmd(
             "nft add rule inet filter input icmp type echo-request accept"))
 
@@ -114,7 +107,7 @@ def start_services(net: Mininet) -> None:
         info(net[host].cmd(
             "nft add rule inet filter output ct state {established, related} accept"))
         info(net[host].cmd(
-            "nft add rule inet filter output tcp sport {22, 80, 443} accept"))
+            "nft add rule inet filter output sport {22, 80, 443} accept"))
         info(net[host].cmd(
             "nft add rule inet filter output icmp type {echo-reply, destination-unreachable} accept"))
 
@@ -158,39 +151,6 @@ def run():
     net.stop()
 
 
-def ping_all():
-    topo = TopoSecu()
-    net = Mininet(topo=topo)
-
-    add_routes(net)
-    stop_services(net)
-    time.sleep(1)
-    start_services(net)
-
-    net.start()
-    net.pingAll()
-    stop_services(net)
-    net.stop()
-
-
 if __name__ == '__main__':
-
-    # Command-line arguments
-    parser = argparse.ArgumentParser(
-        prog="topo.py",
-        description="Mininet topology for the network attacks project of the course LINFO2347."
-    )
-    # Optional flag -p
-    parser.add_argument("-p", "--pingall", action="store_true",
-                        help="Perform pingall test")
-    # Parse arguments
-    args = parser.parse_args()
-
     setLogLevel('info')
-
-    if args.pingall:
-        # Deploy topology, run pingall test, then exit
-        ping_all()
-    else:
-        # Deploy topology, open CLI
-        run()
+    run()
