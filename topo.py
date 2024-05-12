@@ -92,13 +92,15 @@ def start_services(net: Mininet) -> None:
 
     info(net['r2'].cmd("nft add rule inet filter forward ip saddr 10.2.0.2 ip accept"))
 
+    accepted_ports = {'http': "{22, 80, 443}", "ntp": "{22}",
+                      "ftp": "{22, 20, 21}", "dns": "{22, 5353}"}
+
     for host in ['http', 'ntp', 'ftp', 'dns']:
         info(net[host].cmd("nft add table inet filter"))
         info(net[host].cmd(
             "nft add chain inet filter input '{type filter hook input priority 0; policy drop;}'"))
-        # the following rules makes it so that 22, 80, 443 are the only accepted port therefore protecting against netscan
         info(net[host].cmd(
-            "nft add rule inet filter input dport {22, 80, 443} accept"))
+            f"nft add rule inet filter input tcp dport {accepted_ports[host]} accept"))
         info(net[host].cmd(
             "nft add rule inet filter input icmp type echo-request accept"))
 
@@ -107,7 +109,7 @@ def start_services(net: Mininet) -> None:
         info(net[host].cmd(
             "nft add rule inet filter output ct state {established, related} accept"))
         info(net[host].cmd(
-            "nft add rule inet filter output sport {22, 80, 443} accept"))
+            f"nft add rule inet filter output tcp sport {accepted_ports[host]} accept"))
         info(net[host].cmd(
             "nft add rule inet filter output icmp type {echo-reply, destination-unreachable} accept"))
 
