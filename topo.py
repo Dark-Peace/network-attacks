@@ -85,42 +85,34 @@ def start_services(net: Mininet) -> None:
 
     # SSH server on all servers
     cmd = "/usr/sbin/sshd -D &"
-    for host in ['http', 'ntp', 'ftp']:
+    for host in ['http', 'ntp', 'ftp', 'dns']:
         info(net[host].cmd(cmd))
 
-    info(net['r1'].cmd(""))
-
-    info(net['r2'].cmd("nft add rule inet filter forward ip saddr 10.2.0.2 ip accept"))
-
-    accepted_ports = {'http': "{22, 80, 443}", "ntp": "{22}",
-                      "ftp": "{22, 20, 21}", "dns": "{22, 5353}"}
+    accepted_ports = {'http': "{22, 80, 443, 6010}", "ntp": "{22, 6010}",
+                      "ftp": "{22, 20, 21, 6010}", "dns": "{6010, 22, 5353, 53}"}
 
     for host in ['http', 'ntp', 'ftp', 'dns']:
-        info(net[host].cmd("nft add table inet filter"))
-        info(net[host].cmd(
-            "nft add chain inet filter input '{type filter hook input priority 0; policy drop;}'"))
-        info(net[host].cmd(
-            f"nft add rule inet filter input tcp dport {accepted_ports[host]} accept"))
-        info(net[host].cmd(
-            "nft add rule inet filter input icmp type echo-request accept"))
+        info(net[host].cmd(f"nft add table inet {host}_filter"))
+        info(net[host].cmd(f"nft add chain inet {host}_filter {host}_output '{{type filter hook output priority 0; policy drop;}}'"))
 
-        info(net[host].cmd(
-            "nft add chain inet filter output '{type filter hook output priority 0; policy drop;}'"))
-        info(net[host].cmd(
-            "nft add rule inet filter output ct state {established, related} accept"))
-        info(net[host].cmd(
-            f"nft add rule inet filter output tcp sport {accepted_ports[host]} accept"))
-        info(net[host].cmd(
-            "nft add rule inet filter output icmp type {echo-reply, destination-unreachable} accept"))
+        info(net[host].cmd(f"nft add rule inet {host}_filter {host}_output tcp sport {accepted_ports[host]} accept"))
+        info(net[host].cmd(f"nft add rule inet {host}_filter {host}_output tcp dport {accepted_ports[host]} accept"))
+        info(net[host].cmd(f"nft add rule inet {host}_filter {host}_output udp sport {accepted_ports[host]} accept"))
+        info(net[host].cmd(f"nft add rule inet {host}_filter {host}_output udp dport {accepted_ports[host]} accept"))
 
-    info(net['r1'].cmd("nft add table inet filter"))
+        info(net[host].cmd(f"nft add rule inet {host}_filter {host}_output ct state {{established, related}} accept"))
+
+        info(net[host].cmd(f"nft add rule inet {host}_filter {host}_output icmp type '{{echo-reply, destination-unreachable}}'"))
+        
+    info(net['r1'].cmd("nft add table inet r1_filter")) # table
     info(net['r1'].cmd(
-        "nft add chain inet filter forward '{type filter hook forward priority 0;}'"))
-    info(net['r1'].cmd(
-        "nft add rule inet filter forward ct original ip saddr 10.1.0.2 accept"))
-    info(net['r1'].cmd(
-        "nft add rule inet filter forward ct original ip saddr 10.1.0.3 accept"))
-    info(net['r1'].cmd("nft add rule inet filter forward ct state new drop"))
+        "nft add chain inet r1_filter r1_forward '{type filter hook forward priority 0; policy drop;}'")) # chain
+    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward udp dport {53, 5353} accept")) # allowing dns packets
+    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward udp port {53, 5353} accept")) # allowing dns packets
+
+    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward ip saddr 10.1.0.0/24 accept"))
+    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward ct state {established, related} accept"))
+    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward icmp type {echo-reply, destination-unreachable} accept"))
 
 
 def stop_services(net: Mininet) -> None:
