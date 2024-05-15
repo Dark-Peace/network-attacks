@@ -9,11 +9,8 @@ python fpt_bruteforce.py
 ```
 # defenses
 ## Network scans
-Only a firewall drop policy is needed such that every request to any port that is not in the white list is rejected :
+Protection against port scan is already builtin in the base firewall rules that were asked as for resuming normal functions of the DMZ servers, we must leave open the used ports. To do so, we use a policy drop and accept only the required ports
 ```sh
-nft add rule inet filter input dport {22, 80, 443} accept
-```
-this rule only accepts packets with port 22,80 or 443 as destination making it impossible for network scans to succeed. We can do the same with the source ports as except for the ones listed before we shouldn't need any other :
-```sh
-nft add rule inet filter input sport {22, 80, 443} accept
+nft add rule inet ${HOST}_filter ${HOST}_output sport ${ALLOW_LIST_PORTS} accept
+nft add rule inet ${HOST}_filter ${HOST}_output dport ${ALLOW_LIST_PORTS} accept
 ```
