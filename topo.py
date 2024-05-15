@@ -108,7 +108,7 @@ def start_services(net: Mininet) -> None:
     info(net['r1'].cmd(
         "nft add chain inet r1_filter r1_forward '{type filter hook forward priority 0; policy drop;}'")) # chain
     info(net['r1'].cmd("nft add rule inet r1_filter r1_forward udp dport {53, 5353} accept")) # allowing dns packets
-    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward udp port {53, 5353} accept")) # allowing dns packets
+    info(net['r1'].cmd("nft add rule inet r1_filter r1_forward udp sport {53, 5353} accept")) # allowing dns packets
 
     info(net['r1'].cmd("nft add rule inet r1_filter r1_forward ip saddr 10.1.0.0/24 accept"))
     info(net['r1'].cmd("nft add rule inet r1_filter r1_forward ct state {established, related} accept"))
