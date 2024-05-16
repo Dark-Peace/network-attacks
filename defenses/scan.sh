@@ -1,0 +1,1 @@
+add rule inet filter forward arp operation request limit rate over 4/minute burst 2 packets counter drop
