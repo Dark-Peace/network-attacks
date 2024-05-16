@@ -1,8 +1,8 @@
-# network-attacks
+# Network Attacks
 
 By Robin-Gilles Becker (521513) and todo
 
-# attacks
+# Attacks
 
 Attack scripts can be ran using the command
 ```sh
@@ -23,7 +23,7 @@ This script returns the list of hosts it found on the network. This attack uses 
 ## Reflected DNS DOS
 todo
 
-# defenses
+# Defenses
 Most of these attacks cannot be completely prevented, but we can make it more difficult for an attacker to disturb the network.
 
 ## Basic
