@@ -1,4 +1,7 @@
 # network-attacks
+
+By Robin-Gilles Becker (521513) and todo
+
 # attacks
 
 Attack scripts can be ran using the command
