@@ -1,1 +1,1 @@
-nft add table arp filter; nft add chain arp filter forward '{type filter hook forward priority 0; policy accept;}'; nft add rule arp filter forward arp operation request limit rate over 4/minute burst 2 packets counter drop
+nft add table arp filter; nft add chain arp filter output '{type filter hook output priority 0; policy accept;}'; nft add rule arp filter output arp operation request limit rate over 4/minute burst 2 packets counter drop
