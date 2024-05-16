@@ -27,6 +27,7 @@ Most of these attacks cannot be completely prevented, but we can make it more di
 todo
 
 We can check the result of our basic firewall by doing a pingall in mininet.
+
 ![image](https://github.com/Dark-Peace/network-attacks/assets/74102789/925c7159-6ebf-45af-b9c5-3a5389ed5cb6)
 
 We can see the DMZ cannot ping anything, but can be pinged by everyone. Workstations can ping everyone but can't be reached by the internet.
