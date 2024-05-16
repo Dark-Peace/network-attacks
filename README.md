@@ -26,6 +26,12 @@ Most of these attacks cannot be completely prevented, but we can make it more di
 ## Basic
 todo
 
+We can check the result of our basic firewall by doing a pingall in mininet.
+![image](https://github.com/Dark-Peace/network-attacks/assets/74102789/925c7159-6ebf-45af-b9c5-3a5389ed5cb6)
+
+We can see the DMZ cannot ping anything, but can be pinged by everyone. Workstations can ping everyone but can't be reached by the internet.
+Even with the following specific defense scripts active, this pingall doesn't change, proving the normal use of the network is still possible after all our defenses.
+
 ## FTP bruteforce
 To make the attack harder, we implement rate limiting. It will then be way harder to go through an entire list of common passwords. In order to be a little lenient for people who mistyped their passwords, we allow 3 tries per minute. This nft rule only acts on port 21, the ftp port.
 ```sh
