@@ -1,10 +1,10 @@
 # Network Attacks
 
-By Robin-Gilles Becker (521513) and Aguililla Klein Esteban (ULBID:514341, NOMA:31862301)
+By Robin-Gilles Becker (NOMA:70552301 ULBID:521513) and Aguililla Klein Esteban (ULBID:514341, NOMA:31862301)
 
 # Attacks
 
-Attack scripts can be run using the command
+Attack scripts can be run from a host using the command
 ```sh
 [host] python attacks/[script.py]
 ```
@@ -49,6 +49,11 @@ We can check the result of our basic firewall by doing a pingall in mininet.
 We can see the DMZ cannot ping anything, but can be pinged by everyone. Workstations can ping everyone but can't be reached by the internet.
 Even with the following specific defense scripts active, this pingall doesn't change, proving the normal use of the network is still possible after all our defenses.
 
+Defense scripts can be applied on a host using the command
+```sh
+[host] ./defenses/[script.sh]
+```
+
 ## FTP bruteforce
 To make the attack harder, we implement rate limiting. It will then be way harder to go through an entire list of common passwords. In order to be a little lenient for people who mistyped their passwords, we allow 3 tries per minute. This nft rule only acts on port 21, the ftp port.
 ```sh
@@ -80,4 +85,8 @@ In order to defend against a reflected DOS we used rate limitation in the same w
 ```sh
 nft add chain inet dns_filter input '{type filter hook input priority 0; policy accept;}'
 nft add rule inet dns_filter input udp dport 5353 limit rate over 3/minute burst 1 packets counter drop
+```
+
+```sh
+dns ./defenses/reflected_dns_dos.sh
 ```
